@@ -60,6 +60,9 @@ module Network.Socket.Types (
     , zeroMemory
     , htonl
     , ntohl
+
+    -- * hacks
+    , readCount
     ) where
 
 import Control.Monad (when)
@@ -75,6 +78,19 @@ import Foreign.Marshal.Array
 #endif
 
 import Network.Socket.Imports
+
+import Data.IORef
+import System.IO.Unsafe
+
+readCount :: IO Int
+readCount = readIORef countRef
+
+incCount :: IO ()
+incCount = atomicModifyIORef countRef (\x -> (x+1, ()))
+
+countRef :: IORef Int
+countRef = unsafePerformIO $ newIORef 0
+{-# NOINLINE countRef #-}
 
 -----------------------------------------------------------------------------
 
@@ -142,7 +158,9 @@ invalidateSocket (Socket ref _) errorAction normalAction = do
 --   the other use 'close', unexpected behavior may happen.
 --   For more information, please refer to the documentation of 'fdSocket'.
 close :: Socket -> IO ()
-close s = invalidateSocket s (\_ -> return ()) $ \oldfd -> do
+close s = do
+  incCount
+  invalidateSocket s (\_ -> return ()) $ \oldfd -> do
     -- closeFdWith avoids the deadlock of IO manager.
     closeFdWith closeFd (toFd oldfd)
   where

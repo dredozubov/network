@@ -199,6 +199,9 @@ module Network.Socket
 
     -- * Special constants
     , maxListenQueue
+
+    -- * hacks
+    , readCount
     ) where
 
 import Network.Socket.Buffer hiding (sendBufTo, recvBufFrom)
