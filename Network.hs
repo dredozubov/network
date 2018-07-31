@@ -402,11 +402,6 @@ socketPort s = do
     sockaddr <- getSocketName s
     case sockaddr of
       SockAddrInet port _      -> return $ PortNumber port
-#if defined(IPV6_SOCKET_SUPPORT)
-      SockAddrInet6 port _ _ _ -> return $ PortNumber port
-#else
-      SockAddrInet6 {}         -> ioError $ userError "Network.socketPort: socket address 'SockAddrInet6' not supported on this platform."
-#endif
 #if defined(mingw32_HOST_OS)
       SockAddrUnix {}          -> ioError $ userError "Network.socketPort: socket address 'SockAddrUnix' not supported on this platform."
 #else

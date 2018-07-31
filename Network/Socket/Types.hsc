@@ -824,11 +824,6 @@ data SockAddr       -- C Names
   = SockAddrInet
     PortNumber  -- sin_port  (network byte order)
     HostAddress -- sin_addr  (ditto)
-  | SockAddrInet6
-        PortNumber      -- sin6_port (network byte order)
-        FlowInfo        -- sin6_flowinfo (ditto)
-        HostAddress6    -- sin6_addr (ditto)
-        ScopeID         -- sin6_scope_id (ditto)
   | SockAddrUnix
         String          -- sun_path
   | SockAddrCan
