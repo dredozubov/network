@@ -180,6 +180,8 @@ module Network.Socket
     , packFamily
     , unpackFamily
     , packSocketType
+
+    , readCount
     ) where
 
 import Data.Bits
@@ -1115,6 +1117,7 @@ shutdown (MkSocket s _ _ _ _) stype = do
 -- may lead to undefined behaviour.
 close :: Socket -> IO ()
 close (MkSocket s _ _ _ socketStatus) = do
+ incCount
  modifyMVar_ socketStatus $ \ status ->
    case status of
      ConvertedToHandle ->
