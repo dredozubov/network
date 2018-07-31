@@ -299,15 +299,6 @@ instance Show SockAddr where
    = showString (unsafePerformIO (inet_ntoa ha))
    . showString ":"
    . shows port
-#if defined(IPV6_SOCKET_SUPPORT)
-  showsPrec _ addr@(SockAddrInet6 port _ _ _)
-   = showChar '['
-   . showString (unsafePerformIO $
-                 fst `liftM` getNameInfo [NI_NUMERICHOST] True False addr >>=
-                 maybe (fail "showsPrec: impossible internal error") return)
-   . showString "]:"
-   . shows port
-#endif
 #if defined(CAN_SOCKET_SUPPORT)
   showsPrec _ (SockAddrCan ifidx) = shows ifidx
 #endif
@@ -769,11 +760,6 @@ socketPort :: Socket            -- Connected & Bound Socket
 socketPort sock@(MkSocket _ AF_INET _ _ _) = do
     (SockAddrInet port _) <- getSocketName sock
     return port
-#if defined(IPV6_SOCKET_SUPPORT)
-socketPort sock@(MkSocket _ AF_INET6 _ _ _) = do
-    (SockAddrInet6 port _ _ _) <- getSocketName sock
-    return port
-#endif
 socketPort (MkSocket _ family _ _ _) =
     ioError $ userError $
       "Network.Socket.socketPort: address family '" ++ show family ++

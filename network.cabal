@@ -78,7 +78,7 @@ library
   includes: HsNet.h
   install-includes: HsNet.h HsNetworkConfig.h
   c-sources: cbits/HsNet.c
-  ghc-options: -Wall -fwarn-tabs
+  ghc-options: -fwarn-tabs
 
 test-suite simple
   hs-source-dirs: tests
@@ -106,7 +106,7 @@ test-suite regression
     test-framework,
     test-framework-hunit
   -- Some of the bugs only occur in the threaded RTS
-  ghc-options: -Wall -threaded
+  ghc-options: -threaded
 
 test-suite doctest
   hs-source-dirs: tests
@@ -117,7 +117,6 @@ test-suite doctest
     base < 5,
     doctest >= 0.10.1
 
-  ghc-options: -Wall
 
 source-repository head
   type:     git

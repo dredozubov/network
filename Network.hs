@@ -288,7 +288,6 @@ accept sock@(MkSocket _ AF_INET6 _ _ _) = do
  peer <- catchIO ((fromJust . fst) `liftM` getNameInfo [] True False addr) $
          \_ -> case addr of
                  SockAddrInet  _   a   -> inet_ntoa a
-                 SockAddrInet6 _ _ a _ -> return (show a)
 #if defined(mingw32_HOST_OS)
                  SockAddrUnix {}       -> ioError $ userError "Network.accept: peer socket address 'SockAddrUnix' not supported on this platform."
 #else
@@ -302,7 +301,6 @@ accept sock@(MkSocket _ AF_INET6 _ _ _) = do
  handle <- socketToHandle sock' ReadWriteMode
  let port = case addr of
               SockAddrInet  p _     -> p
-              SockAddrInet6 p _ _ _ -> p
               _                     -> -1
  return (handle, peer, port)
 #endif
@@ -365,9 +363,6 @@ recvFrom host port = do
     waiting
   where
     a@(SockAddrInet _ ha) `oneOf` ((SockAddrInet _ hb):bs)
-        | ha == hb = True
-        | otherwise = a `oneOf` bs
-    a@(SockAddrInet6 _ _ ha _) `oneOf` ((SockAddrInet6 _ _ hb _):bs)
         | ha == hb = True
         | otherwise = a `oneOf` bs
     _ `oneOf` _ = False

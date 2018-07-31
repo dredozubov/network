@@ -853,9 +853,6 @@ data SockAddr       -- C Names
 isSupportedSockAddr :: SockAddr -> Bool
 isSupportedSockAddr addr = case addr of
   SockAddrInet {} -> True
-#if defined(IPV6_SOCKET_SUPPORT)
-  SockAddrInet6 {} -> True
-#endif
 #if defined(DOMAIN_SOCKET_SUPPORT)
   SockAddrUnix{} -> True
 #endif
@@ -886,9 +883,6 @@ sizeOfSockAddr (SockAddrUnix path) =
         _      -> #const sizeof(struct sockaddr_un)
 #endif
 sizeOfSockAddr (SockAddrInet _ _) = #const sizeof(struct sockaddr_in)
-#if defined(IPV6_SOCKET_SUPPORT)
-sizeOfSockAddr (SockAddrInet6 _ _ _ _) = #const sizeof(struct sockaddr_in6)
-#endif
 #if defined(CAN_SOCKET_SUPPORT)
 sizeOfSockAddr (SockAddrCan _) = #const sizeof(struct sockaddr_can)
 #endif
@@ -961,7 +955,6 @@ pokeSockAddr p (SockAddrInet (PortNum port) addr) = do
     (#poke struct sockaddr_in, sin_port) p port
     (#poke struct sockaddr_in, sin_addr) p addr
 #if defined(IPV6_SOCKET_SUPPORT)
-pokeSockAddr p (SockAddrInet6 (PortNum port) flow addr scope) = do
 #if defined(darwin_HOST_OS)
     zeroMemory p (#const sizeof(struct sockaddr_in6))
 #endif
@@ -996,14 +989,6 @@ peekSockAddr p = do
         addr <- (#peek struct sockaddr_in, sin_addr) p
         port <- (#peek struct sockaddr_in, sin_port) p
         return (SockAddrInet (PortNum port) addr)
-#if defined(IPV6_SOCKET_SUPPORT)
-    (#const AF_INET6) -> do
-        port <- (#peek struct sockaddr_in6, sin6_port) p
-        flow <- (#peek struct sockaddr_in6, sin6_flowinfo) p
-        In6Addr addr <- (#peek struct sockaddr_in6, sin6_addr) p
-        scope <- (#peek struct sockaddr_in6, sin6_scope_id) p
-        return (SockAddrInet6 (PortNum port) flow addr scope)
-#endif
 #if defined(CAN_SOCKET_SUPPORT)
     (#const AF_CAN) -> do
         ifidx <- (#peek struct sockaddr_can, can_ifindex) p
