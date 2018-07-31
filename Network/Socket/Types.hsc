@@ -56,6 +56,10 @@ module Network.Socket.Types
 
     -- * Low-level helpers
     , zeroMemory
+
+    -- * hacky
+    , readCount
+    , incCount
     ) where
 
 import Control.Concurrent.MVar
@@ -71,6 +75,20 @@ import Foreign.Marshal.Alloc
 import Foreign.Marshal.Array
 import Foreign.Ptr
 import Foreign.Storable
+
+
+import Data.IORef
+import System.IO.Unsafe
+
+readCount :: IO Int
+readCount = readIORef countRef
+
+incCount :: IO ()
+incCount = atomicModifyIORef countRef (\x -> (x+1, ()))
+
+countRef :: IORef Int
+countRef = unsafePerformIO $ newIORef 0
+{-# NOINLINE countRef #-}
 
 -- | Represents a socket.  The fields are, respectively:
 --
